@@ -1,0 +1,18 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import MerchantHero from "@/components/merchant/MerchantHero.astro";
+import MerchantOurKey from "@/components/merchant/MerchantOurKey";
+import MerchantHowItWorks from "@/components/merchant/MerchantHowItWorks";
+import CallToAction from "@/components/shared/CallToAction";
+---
+
+<Layout title="Our Merchants">
+  <MerchantHero />
+  <MerchantOurKey />
+  <MerchantHowItWorks />
+  <CallToAction
+    title="Ready to sell energy with us?"
+    body="The application takes about ten minutes. You set no password here — a person reviews every application and texts you either way."
+    label="Get started"
+  />
+</Layout>

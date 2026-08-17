@@ -1,0 +1,16 @@
+@import "@gridcore/ui/styles.css";
+
+
+:root {
+  --gradient-to: var(--color-primary);
+
+  --shadow-card:
+    0 1px 2px 0 rgb(0 0 0 / 0.04), 0 12px 32px -12px rgb(0 0 0 / 0.14);
+
+  --input-padding-block: 0.625rem;
+}
+
+html {
+ 
+  color: #121212;
+}

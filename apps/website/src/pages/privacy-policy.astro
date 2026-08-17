@@ -1,0 +1,14 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import PPAndTACHero from "@/components/shared/PPAndTACHero";
+import PPAndTACContents from "@/components/shared/PPAndTACContents";
+import { privacyPolicySections } from "@/data/legal";
+
+const intro =
+  "GridCore Inc is committed to protecting the privacy and personal data of our users, merchants and partners. This Privacy Policy explains how we collect, use, disclose and safeguard information when you visit or use the GridCore website, applications, APIs and services (collectively, the “Services”).";
+---
+
+<Layout title="Privacy Policy">
+  <PPAndTACHero title="Privacy Policy" />
+  <PPAndTACContents intro={intro} sections={privacyPolicySections} />
+</Layout>

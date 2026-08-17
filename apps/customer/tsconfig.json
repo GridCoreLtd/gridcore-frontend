@@ -1,0 +1,10 @@
+{
+  "extends": "@gridcore/config/tsconfig/react-app.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}

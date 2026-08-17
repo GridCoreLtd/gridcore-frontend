@@ -1,0 +1,61 @@
+---
+import { Image } from "astro:assets";
+
+import CtaLink from "@/components/shared/CtaLink";
+import { FadeIn, FadeInStagger } from "@/components/shared/FadeIn";
+import merchantsHero from "@/assets/merchants-hero.png";
+
+// The LCP image of /merchants.
+---
+
+<section class="relative overflow-hidden bg-primary pt-28 md:pt-36">
+  <div aria-hidden class="pointer-events-none absolute inset-0">
+    <div
+      class="absolute -top-32 left-1/2 size-184 -translate-x-1/2 rounded-full bg-secondary/10 blur-3xl"
+    >
+    </div>
+    <div
+      class="absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-primary to-transparent"
+    >
+    </div>
+  </div>
+
+  <div class="container relative">
+    <FadeInStagger>
+      <FadeIn>
+        <p
+          class="text-center text-sm font-semibold uppercase tracking-widest text-secondary"
+        >
+          Our merchants
+        </p>
+        <h1
+          class="mx-auto mt-5 max-w-4xl text-center text-4xl/[3rem] font-semibold text-white md:text-5xl/[4rem]"
+        >
+          The backbone of the energy ecosystem
+        </h1>
+        <p class="mx-auto mt-6 max-w-3xl text-center text-white/75">
+          We partner with energy providers committed to addressing energy access
+          and affordability. If you are an innovative provider seeking to
+          improve business outcomes and customer experience, you have come to
+          the right place.
+        </p>
+      </FadeIn>
+
+      <FadeIn className="mt-10 flex justify-center md:mb-20">
+        <CtaLink href="/apply" variant="secondary">Get started</CtaLink>
+      </FadeIn>
+
+      <FadeIn className="mx-auto max-w-239">
+        <Image
+          src={merchantsHero}
+          alt="The GridCore merchant dashboard, showing customers, transactions and payouts"
+          widths={[640, 956, 1920]}
+          sizes="(max-width: 956px) 100vw, 956px"
+          loading="eager"
+          fetchpriority="high"
+          class="h-auto w-full"
+        />
+      </FadeIn>
+    </FadeInStagger>
+  </div>
+</section>

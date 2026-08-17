@@ -1,0 +1,29 @@
+/* Scroll reveal — the CSS half of components/shared/FadeIn.tsx. */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(var(--reveal-offset, 24px));
+  transition:
+    opacity var(--reveal-duration, 0.5s) ease-out,
+    transform var(--reveal-duration, 0.5s) ease-out;
+  transition-delay: var(--reveal-delay, 0s);
+  will-change: opacity, transform;
+}
+
+[data-reveal][data-revealed] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Without JS (or before the observer runs) nothing should stay invisible. */
+.no-js [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    transform: none;
+    transition-duration: 0.01ms;
+  }
+}

@@ -1,0 +1,138 @@
+---
+import Header from "@/components/header/Header.astro";
+import Footer from "@/components/footer/Footer";
+import "@gridcore/ui/fonts.css";
+import "@/styles/reveal.css";
+import "@/styles/globals.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** A page that opens on a light section rather than a dark hero — the header
+      then has nothing to sit over, so it paints its own bar. */
+  lightTop?: boolean;
+}
+
+const SITE_NAME = "GridCore";
+const DEFAULT_TITLE = "GridCore - Meter Management and Token Vending Platform";
+const DEFAULT_DESCRIPTION =
+  "GridCore is a meter agnostic token vending and meter management platform that allows Merchants (Energy Providers) manage meters, receive payments, and generate tokens for any compatible meter.";
+
+const { title, description = DEFAULT_DESCRIPTION, lightTop = false } = Astro.props;
+
+// Next's metadata template was "%s - Gridcore".
+const pageTitle = title ? `${title} - ${SITE_NAME}` : DEFAULT_TITLE;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="application-name" content={SITE_NAME} />
+    {/* Matches --color-primary. */}
+    <meta name="theme-color" content="#000248" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/opengraph-image.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="/twitter-image.png" />
+  </head>
+
+  <!-- Flex column so the footer hugs content on a short page. -->
+  <body class="flex min-h-screen flex-col bg-background font-sans">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-100 focus:rounded-md focus:bg-card focus:px-4 focus:py-2 focus:text-primary focus:shadow-lg focus:outline-2 focus:outline-offset-2 focus:outline-secondary"
+    >
+      Skip to main content
+    </a>
+
+    {/* Static — no client: directive. See Header.astro. */}
+    <Header lightTop={lightTop} />
+
+    <main id="main" class="flex-1 bg-background">
+      <slot />
+    </main>
+
+    <Footer />
+
+    {/* Scroll reveal. The ONLY script the page needs for its animations —
+        the sections themselves ship no component JavaScript. */}
+    <script is:inline>
+      (() => {
+        const items = document.querySelectorAll("[data-reveal]");
+        if (!("IntersectionObserver" in window)) {
+          items.forEach((el) => el.setAttribute("data-revealed", ""));
+          return;
+        }
+
+        // Children of a stagger group reveal in sequence.
+        document.querySelectorAll("[data-reveal-stagger]").forEach((group) => {
+          const step =
+            parseFloat(
+              getComputedStyle(group).getPropertyValue("--reveal-step")
+            ) || 0.2;
+          group.querySelectorAll(":scope > [data-reveal]").forEach((el, i) => {
+            el.style.setProperty("--reveal-delay", `${i * step}s`);
+          });
+        });
+
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.setAttribute("data-revealed", "");
+              io.unobserve(entry.target);
+            });
+          },
+          { rootMargin: "0px 0px -200px" }
+        );
+
+        items.forEach((el) => io.observe(el));
+      })();
+    </script>
+
+    {/*
+      Third-party chat widget. `async` still fetches and executes it during
+      initial load, competing with the page for main-thread time — and it is by
+      far the largest script on an otherwise static site. Deferred to browser
+      idle (or first interaction, whichever comes first) so it stays out of the
+      critical path without changing whether it appears.
+    */}
+    <script is:inline>
+      (() => {
+        let loaded = false;
+        const loadChat = () => {
+          if (loaded) return;
+          loaded = true;
+          const s = document.createElement("script");
+          s.async = true;
+          s.src = "https://embed.tawk.to/65683eff68f6b67c37db713b/1hgfjc67p";
+          document.body.appendChild(s);
+        };
+
+        ["pointerdown", "keydown", "touchstart"].forEach((evt) =>
+          window.addEventListener(evt, loadChat, { once: true, passive: true })
+        );
+
+        if ("requestIdleCallback" in window) {
+          requestIdleCallback(loadChat, { timeout: 5000 });
+        } else {
+          window.addEventListener("load", () => setTimeout(loadChat, 2000));
+        }
+      })();
+    </script>
+  </body>
+</html>

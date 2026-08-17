@@ -1,0 +1,198 @@
+---
+import { mainNavMenus } from "@/utils/nav-menus";
+
+interface Props {
+  /** No dark hero to sit over, so the bar paints its own — the chrome keeps
+      one look either way. */
+  lightTop?: boolean;
+}
+
+const { lightTop = false } = Astro.props;
+
+// Static: no React, and the active link is right on first paint.
+
+// Trailing slashes are inconsistent across Astro's dev and build output.
+const path = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const isActive = (url: string) => (url.replace(/\/+$/, "") || "/") === path;
+
+const linkBase =
+  "inline-block rounded-lg px-3 py-1.5 text-sm shrink-0 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary";
+const linkIdle = "text-white/75 hover:bg-white/10 hover:text-white";
+const linkActive = "bg-white/10 text-white";
+---
+
+<header
+  class:list={[
+    "absolute inset-x-0 top-0 z-50 border-b border-white/10 py-3",
+    lightTop && "bg-primary",
+  ]}
+>
+  <nav class="container" aria-label="Main">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center md:gap-x-12">
+        <a
+          href="/"
+          aria-label="Gridcore — home"
+          class="w-auto max-w-54 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+        >
+          <img
+            src="/images/logo.png"
+            alt="GridCore"
+            width="216"
+            height="40"
+            class="w-auto max-w-full h-auto"
+          />
+        </a>
+      </div>
+
+      <ul class="hidden lg:flex items-center md:gap-x-10 list-none m-0 p-0">
+        {
+          mainNavMenus.map((navMenu) => (
+            <li>
+              <a
+                href={navMenu.url}
+                aria-current={isActive(navMenu.url) ? "page" : undefined}
+                class:list={[
+                  linkBase,
+                  isActive(navMenu.url) ? linkActive : linkIdle,
+                ]}
+              >
+                {navMenu.text}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <a
+        href="/apply"
+        class="hidden items-center justify-center rounded-md bg-secondary px-6 py-2 text-sm font-medium text-secondary-foreground shadow-xs transition hover:bg-secondary/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary lg:flex"
+      >
+        Become a merchant
+      </a>
+
+      <div class="-mr-1 lg:hidden">
+        <button
+          type="button"
+          id="mobile-nav-button"
+          aria-expanded="false"
+          aria-controls="mobile-nav"
+          aria-label="Toggle navigation menu"
+          data-menu-button
+          class="relative z-10 flex h-8 w-8 items-center justify-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary"
+        >
+          <svg
+            aria-hidden="true"
+            class="h-3.5 w-3.5 overflow-visible stroke-white"
+            fill="none"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
+            <path d="M0 1H14M0 7H14M0 13H14" data-icon-open></path>
+            <path
+              d="M2 2L12 12M12 2L2 12"
+              data-icon-close
+              class="scale-90 opacity-0"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div
+      id="mobile-nav"
+      data-menu-panel
+      hidden
+      class="absolute inset-x-0 top-24 mx-4 flex origin-top flex-col gap-1 rounded-2xl border border-border bg-card p-4 shadow-xl lg:hidden"
+    >
+      {
+        mainNavMenus.map((navMenu) => (
+          <a
+            href={navMenu.url}
+            aria-current={isActive(navMenu.url) ? "page" : undefined}
+            class:list={[
+              "block w-full rounded-md px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+              isActive(navMenu.url)
+                ? "bg-primary text-primary-foreground font-medium"
+                : "text-primary/75 hover:bg-muted hover:text-primary",
+            ]}
+          >
+            {navMenu.text}
+          </a>
+        ))
+      }
+
+      <span class="my-1 block h-px bg-border"></span>
+
+      <a
+        href="/apply"
+        class="mt-1 block w-full rounded-md bg-secondary px-3 py-2 text-center text-sm font-medium text-secondary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        Become a merchant
+      </a>
+    </div>
+  </nav>
+</header>
+
+<script>
+  // The mobile nav is a plain `hidden` element, so it is correctly absent from
+  // the accessibility tree when closed, and the page is navigable with no JS.
+  type Toggle = { button: HTMLElement; panel: HTMLElement };
+
+  const toggles: Toggle[] = [];
+
+  document.querySelectorAll<HTMLElement>("[data-menu-button]").forEach((button) => {
+    const id = button.getAttribute("aria-controls");
+    const panel = id ? document.getElementById(id) : null;
+    if (panel) toggles.push({ button, panel });
+  });
+
+  const setOpen = ({ button, panel }: Toggle, open: boolean) => {
+    button.setAttribute("aria-expanded", String(open));
+    panel.hidden = !open;
+
+    // Swap the hamburger for a close icon, if this button has one.
+    button
+      .querySelector("[data-icon-open]")
+      ?.classList.toggle("scale-90", open);
+    button.querySelector("[data-icon-open]")?.classList.toggle("opacity-0", open);
+    button
+      .querySelector("[data-icon-close]")
+      ?.classList.toggle("scale-90", !open);
+    button
+      .querySelector("[data-icon-close]")
+      ?.classList.toggle("opacity-0", !open);
+  };
+
+  const closeAll = (except?: Toggle) => {
+    toggles.forEach((t) => t !== except && setOpen(t, false));
+  };
+
+  toggles.forEach((toggle) => {
+    toggle.button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const willOpen = toggle.button.getAttribute("aria-expanded") !== "true";
+      closeAll(toggle);
+      setOpen(toggle, willOpen);
+    });
+  });
+
+  // Escape closes and returns focus to the trigger — expected of any disclosure.
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const open = toggles.find(
+      (t) => t.button.getAttribute("aria-expanded") === "true"
+    );
+    if (!open) return;
+    setOpen(open, false);
+    open.button.focus();
+  });
+
+  // Click outside closes.
+  document.addEventListener("click", (event) => {
+    const target = event.target as Node;
+    const inside = toggles.some(
+      (t) => t.panel.contains(target) || t.button.contains(target)
+    );
+    if (!inside) closeAll();
+  });
+</script>

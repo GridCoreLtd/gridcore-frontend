@@ -1,0 +1,10 @@
+@import "@gridcore/ui/styles.css";
+
+:root {
+  --input-padding-block: 0.5rem;
+}
+
+html {
+  /* See the note in the console's globals.css. */
+  color: #121212;
+}

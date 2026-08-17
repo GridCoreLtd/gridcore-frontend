@@ -1,0 +1,14 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import PPAndTACHero from "@/components/shared/PPAndTACHero";
+import PPAndTACContents from "@/components/shared/PPAndTACContents";
+import { termsSections } from "@/data/legal";
+
+const intro =
+  "These Terms and Conditions govern your access to and use of the GridCore website, applications, APIs and services. By using them you agree to be bound by these terms.";
+---
+
+<Layout title="Terms and Conditions">
+  <PPAndTACHero title="Terms and Conditions" />
+  <PPAndTACContents intro={intro} sections={termsSections} />
+</Layout>

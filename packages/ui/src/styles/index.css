@@ -1,0 +1,22 @@
+/*
+ * The single stylesheet entry. An app imports this and nothing else:
+ *
+ *   @import "@gridcore/ui/styles.css";
+ *
+ * Order matters — Tailwind first so `@theme` and `@utility` have something to
+ * extend, then values, then element styles, then our own utilities.
+ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@import "./theme.css";
+@import "./base.css";
+@import "./utilities.css";
+
+/*
+ * Tailwind v4 detects sources from the importing project, which never reaches
+ * a linked workspace package. This is relative to *this* file, so every app
+ * picks up the design system's own classes without repeating the path.
+ */
+@source "../";

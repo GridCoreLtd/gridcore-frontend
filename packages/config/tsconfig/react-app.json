@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "GridCore React app (Vite)",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "allowJs": true,
+    "types": ["vite/client"],
+
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  }
+}

@@ -1,0 +1,70 @@
+---
+import { Image } from "astro:assets";
+
+import CtaLink from "@/components/shared/CtaLink";
+import { FadeIn, FadeInStagger } from "@/components/shared/FadeIn";
+import homeHero from "@/assets/home-hero.png";
+
+// Eager + high priority: this is the LCP element.
+---
+
+<section class="relative overflow-hidden bg-primary pt-28 pb-0 md:pt-36">
+  <div aria-hidden class="pointer-events-none absolute inset-0">
+    <div
+      class="absolute -top-32 left-1/2 size-184 -translate-x-1/2 rounded-full bg-secondary/10 blur-3xl"
+    >
+    </div>
+    <div
+      class="absolute -left-40 top-40 size-120 rounded-full bg-secondary/6 blur-3xl"
+    >
+    </div>
+    <div
+      class="absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-primary to-transparent"
+    >
+    </div>
+  </div>
+
+  <div class="container relative">
+    <FadeInStagger>
+      <FadeIn>
+        <p
+          class="text-center text-sm font-semibold uppercase tracking-widest text-secondary"
+        >
+          Energy infrastructure for Africa
+        </p>
+        <h1
+          class="mx-auto mt-5 max-w-4xl text-center text-4xl/[3rem] font-semibold text-white md:text-5xl/[4rem]"
+        >
+          Powering Africa's Energy Future with Smart Grids
+        </h1>
+        <p class="mx-auto mt-6 max-w-155 text-center text-white/75">
+          We power the next generation of decentralised energy through smart
+          metering, edge intelligence, and virtual power plant orchestration.
+        </p>
+      </FadeIn>
+
+      <FadeIn
+        className="mt-10 flex flex-wrap justify-center gap-4 md:mb-20 md:mt-12"
+      >
+        <CtaLink href="/apply" variant="secondary">
+          Get started
+        </CtaLink>
+        <CtaLink href="/solutions" variant="stageOutline">
+          Explore the platform
+        </CtaLink>
+      </FadeIn>
+
+      <FadeIn className="mx-auto max-w-239">
+        <Image
+          src={homeHero}
+          alt="The GridCore dashboard, showing meter status and energy usage across a network"
+          widths={[640, 956, 1912]}
+          sizes="(max-width: 956px) 100vw, 956px"
+          loading="eager"
+          fetchpriority="high"
+          class="h-auto w-full"
+        />
+      </FadeIn>
+    </FadeInStagger>
+  </div>
+</section>

@@ -1,0 +1,10 @@
+{
+  "extends": "@gridcore/config/tsconfig/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    // `import.meta.env` is read for the dev-only trace id; the apps that
+    // consume this are all Vite builds.
+    "types": ["vite/client"]
+  },
+  "include": ["src"]
+}

@@ -1,0 +1,19 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import HomeHero from "@/components/home/HomeHero.astro";
+import HomeAbout from "@/components/home/HomeAbout";
+import HomeEcoSystem from "@/components/home/HomeEcosystem";
+import WhyGridCore from "@/components/why-gridcore/WhyGridCore";
+import HomeInpactAndMarket from "@/components/home/HomeInpactAndMarket";
+import HomeCtaSection from "@/components/home/HomeCtaSection";
+---
+
+<Layout>
+  {/* No client: directive — all of these render to static HTML at build time. */}
+  <HomeHero />
+  <HomeAbout />
+  <HomeEcoSystem />
+  <WhyGridCore />
+  <HomeInpactAndMarket />
+  <HomeCtaSection />
+</Layout>

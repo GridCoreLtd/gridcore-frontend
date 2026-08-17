@@ -1,0 +1,307 @@
+{
+  "supportedCountries": [
+    {
+      "code": "NG",
+      "name": "Nigeria",
+      "dialingCode": "+234",
+      "currency": "NGN"
+    },
+    {
+      "code": "GH",
+      "name": "Ghana",
+      "dialingCode": "+233",
+      "currency": "GHS"
+    },
+    {
+      "code": "KE",
+      "name": "Kenya",
+      "dialingCode": "+254",
+      "currency": "KES"
+    },
+    {
+      "code": "ZA",
+      "name": "South Africa",
+      "dialingCode": "+27",
+      "currency": "ZAR"
+    },
+    {
+      "code": "TZ",
+      "name": "Tanzania",
+      "dialingCode": "+255",
+      "currency": "TZS"
+    },
+    {
+      "code": "UG",
+      "name": "Uganda",
+      "dialingCode": "+256",
+      "currency": "UGX"
+    }
+  ],
+  "_comment_takenEmails": "Registering with one of these returns a 422 field error on emailAddress — use it to exercise the inline error path.",
+  "takenEmails": [
+    "taken@example.com",
+    "existing@gridcore.com"
+  ],
+  "takenShortNames": [
+    "gridcore",
+    "acme"
+  ],
+  "otp": {
+    "_comment": "Any 6-digit code works EXCEPT the ones listed as invalid. 000000 always reports expired.",
+    "valid": "123456",
+    "expired": "000000"
+  },
+  "users": [
+    {
+      "id": "usr_admin_1",
+      "email": "admin@gridcore.com",
+      "password": "password123",
+      "phone": "8020000001",
+      "firstName": "Ada",
+      "lastName": "Okafor",
+      "accountType": "admin",
+      "scopes": [
+        "platform"
+      ]
+    },
+    {
+      "id": "usr_merchant_1",
+      "email": "merchant@gridcore.com",
+      "password": "password123",
+      "phone": "8020000002",
+      "firstName": "Bola",
+      "lastName": "Adeyemi",
+      "accountType": "merchant",
+      "scopes": [
+        "merchant"
+      ],
+      "merchantId": "mch_1"
+    },
+    {
+      "id": "usr_customer_1",
+      "email": "customer@gridcore.com",
+      "password": "password123",
+      "phone": "8020000003",
+      "firstName": "Chidi",
+      "lastName": "Eze",
+      "accountType": "customer",
+      "walletBalance": 1550000
+    }
+  ],
+  "merchants": [
+    {
+      "id": "mch_1",
+      "businessName": "Bright Power Ltd",
+      "shortBusinessName": "brightpower",
+      "businessEmail": "merchant@gridcore.com",
+      "businessPhone": "8020000002",
+      "businessAddress": "12 Admiralty Way, Lekki, Lagos",
+      "status": "approved",
+      "commission": 2.5,
+      "businessLogo": "/images/logo.png",
+      "createdAt": "2026-01-14T09:12:00Z",
+      "country": "NG",
+      "currency": "NGN",
+      "countryCode": "NG",
+      "currencyCode": "NGN",
+      "wallet": {
+        "id": "wal_1",
+        "balance": 48250000
+      }
+    },
+    {
+      "id": "mch_2",
+      "businessName": "Sunrise Energy",
+      "shortBusinessName": "sunrise",
+      "businessEmail": "hello@sunrise.example",
+      "businessPhone": "8020000010",
+      "businessAddress": "4 Ring Road, Accra",
+      "status": "pending",
+      "commission": 3,
+      "createdAt": "2026-06-02T14:40:00Z",
+      "country": "GH",
+      "currency": "GHS",
+      "countryCode": "GH",
+      "currencyCode": "GHS",
+      "wallet": {
+        "id": "wal_2",
+        "balance": 0
+      }
+    }
+  ],
+  "customers": [
+    {
+      "id": "cus_1",
+      "firstName": "Chidi",
+      "lastName": "Eze",
+      "email": "customer@gridcore.com",
+      "phone": "8020000003",
+      "merchantId": "mch_1",
+      "accountType": "customer",
+      "createdAt": "2026-02-01T10:00:00Z"
+    },
+    {
+      "id": "cus_2",
+      "firstName": "Ngozi",
+      "lastName": "Bello",
+      "email": "ngozi@example.com",
+      "phone": "8020000004",
+      "merchantId": "mch_1",
+      "accountType": "customer",
+      "createdAt": "2026-03-11T16:25:00Z"
+    },
+    {
+      "id": "cus_3",
+      "firstName": "Kwame",
+      "lastName": "Mensah",
+      "email": "kwame@example.com",
+      "phone": "8020000005",
+      "merchantId": "mch_2",
+      "accountType": "customer",
+      "createdAt": "2026-06-05T11:10:00Z"
+    }
+  ],
+  "meters": [
+    {
+      "id": "mtr_1",
+      "meterNumber": "04123456789",
+      "customerId": "cus_1",
+      "merchantId": "mch_1",
+      "brand": "Hexing",
+      "type": "prepaid",
+      "status": "online",
+      "isMetric": true,
+      "lastSeenAt": "2026-07-28T08:02:00Z"
+    },
+    {
+      "id": "mtr_2",
+      "meterNumber": "04987654321",
+      "customerId": "cus_2",
+      "merchantId": "mch_1",
+      "brand": "Conlog",
+      "type": "prepaid",
+      "status": "offline",
+      "isMetric": false,
+      "lastSeenAt": "2026-07-20T19:44:00Z"
+    },
+    {
+      "id": "mtr_3",
+      "meterNumber": "04555000111",
+      "customerId": "cus_3",
+      "merchantId": "mch_2",
+      "brand": "Momas",
+      "type": "prepaid",
+      "status": "online",
+      "isMetric": true,
+      "lastSeenAt": "2026-07-28T07:15:00Z"
+    }
+  ],
+  "meterBrands": [
+    {
+      "id": "brd_1",
+      "name": "Hexing"
+    },
+    {
+      "id": "brd_2",
+      "name": "Conlog"
+    },
+    {
+      "id": "brd_3",
+      "name": "Momas"
+    }
+  ],
+  "meterTypes": [
+    {
+      "id": "typ_1",
+      "name": "prepaid"
+    },
+    {
+      "id": "typ_2",
+      "name": "postpaid"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "trx_1",
+      "reference": "GC-2026-0001",
+      "merchantId": "mch_1",
+      "customerId": "cus_1",
+      "meterNumber": "04123456789",
+      "amountMinor": 500000,
+      "currency": "NGN",
+      "status": "successful",
+      "token": "1234-5678-9012-3456-7890",
+      "createdAt": "2026-07-27T11:05:00Z",
+      "walletId": "wal_1"
+    },
+    {
+      "id": "trx_2",
+      "reference": "GC-2026-0002",
+      "merchantId": "mch_1",
+      "customerId": "cus_2",
+      "meterNumber": "04987654321",
+      "amountMinor": 250000,
+      "currency": "NGN",
+      "status": "failed",
+      "createdAt": "2026-07-27T15:31:00Z",
+      "walletId": "wal_1"
+    }
+  ],
+  "topups": [
+    {
+      "id": "top_1",
+      "reference": "TP-2026-0001",
+      "merchantId": "mch_1",
+      "amountMinor": 10000000,
+      "currency": "NGN",
+      "status": "successful",
+      "createdAt": "2026-07-26T09:00:00Z"
+    }
+  ],
+  "banks": [
+    {
+      "code": "058",
+      "name": "Guaranty Trust Bank"
+    },
+    {
+      "code": "044",
+      "name": "Access Bank"
+    },
+    {
+      "code": "033",
+      "name": "United Bank for Africa"
+    },
+    {
+      "code": "057",
+      "name": "Zenith Bank"
+    }
+  ],
+  "roles": [
+    {
+      "id": "rol_1",
+      "name": "Super Admin"
+    },
+    {
+      "id": "rol_2",
+      "name": "Support"
+    },
+    {
+      "id": "rol_3",
+      "name": "Finance"
+    }
+  ],
+  "payoutSchedules": [
+    {
+      "id": "pos_1",
+      "merchantId": "mch_1",
+      "frequency": "weekly",
+      "dayOfWeek": "friday",
+      "status": "active"
+    }
+  ],
+  "payoutsSummary": {
+    "totalPaidOutMinor": 125000000,
+    "pendingMinor": 4500000,
+    "currency": "NGN"
+  }
+}

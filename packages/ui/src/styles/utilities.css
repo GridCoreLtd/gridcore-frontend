@@ -1,0 +1,46 @@
+/*
+ * Custom utilities, shared by every app.
+ *
+ * Each was defined separately in two or three `globals.scss` files with values
+ * that had quietly drifted apart. Where an app genuinely needs a different
+ * value it overrides the token in theme.css rather than redeclaring the rule.
+ */
+
+/* v4 dropped `theme.container`, so the centred, padded container is a utility. */
+@utility container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+
+  @media (width >= 640px) {
+    max-width: var(--container-max);
+  }
+}
+
+@utility gradient-bg {
+  background-image: linear-gradient(
+    to right,
+    var(--gradient-from),
+    var(--gradient-to)
+  );
+}
+
+@utility gradient-text {
+  background-image: linear-gradient(
+    to right,
+    var(--gradient-from),
+    var(--gradient-to)
+  );
+  background-clip: text;
+  color: transparent;
+}
+
+@utility card-shadow {
+  box-shadow: var(--shadow-card);
+}
+
+@utility toast-body {
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  border-radius: var(--radius-lg);
+}

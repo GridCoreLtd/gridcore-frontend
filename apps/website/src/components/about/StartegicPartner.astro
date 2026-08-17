@@ -1,0 +1,108 @@
+---
+/*
+ * Strategic partner logo marquee.
+ *
+ * Was a React island using framer-motion + react-use-measure to animate a
+ * duplicated list — roughly 110 kB of JavaScript to translate a div. The list
+ * is duplicated exactly once, so translating -50% and looping is identical
+ * motion in pure CSS, at zero JS.
+ *
+ * Accessibility notes:
+ *  - The old alt text was `Partner ${index}` ("Partner 0", "Partner 1", …),
+ *    which tells a screen-reader user nothing. Names are set below; the strip
+ *    is also duplicated for the animation, so the second copy is aria-hidden to
+ *    stop every partner being announced twice.
+ *  - The animation pauses on hover and on keyboard focus, and is disabled
+ *    entirely under `prefers-reduced-motion` (WCAG 2.2.2).
+ */
+
+const partners = [
+  { src: "/images/ikedc.png", name: "IKEDC" },
+  { src: "/images/aedc.png", name: "AEDC" },
+  // TODO: these two need their real partner names for the alt text.
+  { src: "/images/partner-1.png", name: "Partner logo" },
+  { src: "/images/partner-2.png", name: "Partner logo" },
+  { src: "/images/payco.png", name: "Payco" },
+  { src: "/images/lora.png", name: "LoRa" },
+  { src: "/images/rea.png", name: "REA" },
+  { src: "/images/infra.png", name: "Infra" },
+];
+---
+
+<section class="bg-background py-20 md:py-28">
+  <div class="container">
+    <p class="text-sm font-semibold uppercase tracking-widest text-primary/60">
+      Strategic partners
+    </p>
+    <h2 class="mt-3 max-w-2xl text-3xl font-semibold text-primary sm:text-4xl">
+      We work with leading players in energy, finance and development.
+    </h2>
+
+    {/* A fixed box gives eight marks of different sizes one optical size. */}
+    <div class="marquee mt-12 w-full overflow-hidden">
+      <div class="marquee__track flex items-center gap-12">
+        {
+          partners.map((partner) => (
+            <div class="flex h-14 w-36 shrink-0 items-center justify-center">
+              <img
+                src={partner.src}
+                alt={partner.name}
+                loading="lazy"
+                decoding="async"
+                class="max-h-full max-w-full object-contain opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0"
+              />
+            </div>
+          ))
+        }
+        {/* Duplicate copy purely to make the loop seamless — hidden from AT. */}
+        {
+          partners.map((partner) => (
+            <div
+              class="flex h-14 w-36 shrink-0 items-center justify-center"
+              aria-hidden="true"
+            >
+              <img
+                src={partner.src}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                class="max-h-full max-w-full object-contain opacity-70 grayscale"
+              />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .marquee__track {
+    width: max-content;
+    animation: marquee-scroll 25s linear infinite;
+  }
+
+  /* Let users stop the motion — WCAG 2.2.2 (Pause, Stop, Hide). */
+  .marquee:hover .marquee__track,
+  .marquee:focus-within .marquee__track {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+    }
+    .marquee {
+      overflow-x: auto;
+    }
+  }
+</style>

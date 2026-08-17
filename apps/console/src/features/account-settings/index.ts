@@ -1,0 +1,1 @@
+export { getOwnMerchant } from "./api";

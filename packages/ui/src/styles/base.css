@@ -1,0 +1,51 @@
+
+
+@layer base {
+ 
+  * {
+    border-color: var(--color-border);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+ 
+  html {
+    min-height: 100svh;
+  }
+
+  body {
+    font-weight: 300;
+    min-height: 100svh;
+  }
+
+  /* Boxed text inputs. The website overrides this with an underlined style. */
+  input[type="text"],
+  [type="tel"],
+  [type="email"],
+  [type="file"],
+  [type="password"] {
+    @apply block w-full rounded-md border-0 px-3 text-base leading-6 md:text-sm ring-1 ring-input placeholder:text-xs placeholder:text-muted-foreground hover:ring-muted-foreground/40 focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:hover:ring-input;
+    padding-block: var(--input-padding-block);
+  }
+
+  textarea {
+    @apply block w-full rounded-md border-0 px-3 py-1.5 text-base leading-6 md:text-sm ring-1 ring-input placeholder:text-xs placeholder:text-muted-foreground hover:ring-muted-foreground/40 focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:hover:ring-input;
+  }
+
+  /*
+   * `appearance-none` plus a chevron is what @tailwindcss/forms was providing.
+   * The element stays native on purpose: on a phone it opens the OS picker,
+   * which beats any combobox we could ship.
+   */
+  select {
+    @apply block w-full appearance-none rounded-md border-0 bg-background py-1.5 pl-3 pr-10 text-base leading-6 md:text-sm ring-1 ring-input placeholder:text-xs placeholder:text-muted-foreground hover:ring-muted-foreground/40 focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:hover:ring-input;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    print-color-adjust: exact;
+  }
+}
