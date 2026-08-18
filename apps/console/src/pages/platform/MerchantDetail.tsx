@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { MerchantRecord, MerchantRecordSkeleton } from "@/entities/merchant";
 import { getMerchant } from "@/features/merchants";
@@ -23,14 +22,6 @@ export default function MerchantDetail() {
 
   return (
     <section className="flex max-w-4xl flex-col gap-6">
-      <Link
-        to="/merchants"
-        className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary hover:underline"
-      >
-        <ChevronLeft className="size-4" aria-hidden />
-        Merchants
-      </Link>
-
       {query.isLoading ? (
         <MerchantRecordSkeleton />
       ) : !merchant ? (

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { Badge } from "@gridcore/ui/components/ui/badge";
 import { Button } from "@gridcore/ui/components/ui/button";
@@ -32,14 +32,6 @@ export default function CustomerDetail() {
 
   return (
     <section className="flex max-w-4xl flex-col gap-6">
-      <Link
-        to="/customers"
-        className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary hover:underline"
-      >
-        <ChevronLeft className="size-4" aria-hidden />
-        Customers
-      </Link>
-
       {query.isLoading ? (
         <CustomerRecordSkeleton />
       ) : !customer ? (
