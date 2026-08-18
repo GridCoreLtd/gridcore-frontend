@@ -1,4 +1,3 @@
-export * from "./components/MessageDetailView";
-export * from "./BulkMessagingPage";
-export * from "./hooks/useBulkMessaging";
-export * from "./types";
+export * from "./api";
+export { default as ComposeTab } from "./components/ComposeTab";
+export { default as LogsTab } from "./components/LogsTab";

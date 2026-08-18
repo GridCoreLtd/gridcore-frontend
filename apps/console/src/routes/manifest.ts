@@ -159,12 +159,14 @@ export const consoleRoutes: ConsoleRoute[] = [
     scope: "platform",
     label: "Bulk Messaging",
     icon: MessagesSquare,
+    permission: "notification.broadcast",
     element: () => import("@/pages/platform/BulkMessaging"),
   },
   {
     path: "/bulk-messaging/logs/:id",
     scope: "platform",
     crumb: "Log",
+    permission: "notification.broadcast",
     element: () => import("@/pages/platform/BulkMessagingLogDetail"),
   },
 
