@@ -1,5 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import type * as React from "react";
 
 import {
   Combobox,
@@ -57,6 +59,16 @@ export default function MerchantCombobox({
 
   const merchants = query.data?.pages.flatMap((page) => page.data) ?? [];
 
+  // The next page loads itself: nearing the list's bottom fetches it.
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = query;
+  const onListScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const el = event.currentTarget;
+    if (!hasNextPage || isFetchingNextPage) return;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 48) {
+      void fetchNextPage();
+    }
+  };
+
   return (
     <Combobox
       items={merchants}
@@ -82,21 +94,17 @@ export default function MerchantCombobox({
         <ComboboxEmpty>
           {query.isFetching ? "Searching…" : "No merchant matches."}
         </ComboboxEmpty>
-        <ComboboxList>
+        <ComboboxList onScroll={onListScroll}>
           {(merchant: MerchantChoice) => (
             <ComboboxItem key={merchant.id} value={merchant}>
               {merchant.name}
             </ComboboxItem>
           )}
         </ComboboxList>
-        {query.hasNextPage ? (
-          <button
-            type="button"
-            onClick={() => void query.fetchNextPage()}
-            className="w-full px-2 py-1.5 text-center text-sm text-neutral-500 hover:text-neutral-900"
-          >
-            {query.isFetchingNextPage ? "Loading…" : "Load more"}
-          </button>
+        {isFetchingNextPage ? (
+          <div aria-hidden className="flex justify-center border-t py-1.5">
+            <Loader2 className="size-4 animate-spin text-neutral-400" />
+          </div>
         ) : null}
       </ComboboxContent>
     </Combobox>
