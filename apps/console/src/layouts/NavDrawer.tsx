@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import { Link, useLocation } from "react-router-dom";
 
+import { usePermissions } from "@/auth/usePermissions";
 import { useScopes } from "@/auth/useScopes";
 import { navFor, type ConsoleRoute } from "@/routes/manifest";
 
@@ -26,10 +27,11 @@ function groups(navigation: ConsoleRoute[]) {
 export default function NavDrawer() {
   const { pathname } = useLocation();
   const { scopes } = useScopes();
+  const { permissions } = usePermissions();
 
   // Rendered from the same manifest the router is built from, so the sidebar
   // can never offer a route this session isn't allowed to reach.
-  const navigation = navFor(scopes);
+  const navigation = navFor(scopes, permissions);
 
   return (
     <div className="flex grow flex-col border-r border-border bg-background">

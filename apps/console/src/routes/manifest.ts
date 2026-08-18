@@ -11,6 +11,8 @@ export type ConsoleRoute = {
   path: string;
   /** Undefined = every signed-in console user reaches it. */
   scope?: Scope;
+  /** Hidden from the sidebar without this permission; the server still enforces. */
+  permission?: string;
   /** Sidebar label. Omit to route without adding nav (detail pages). */
   label?: string;
   /**
@@ -60,6 +62,7 @@ export const consoleRoutes: ConsoleRoute[] = [
     path: "/sites",
     label: "Sites",
     icon: MapPin,
+    permission: "site.read",
     element: () => import("@/pages/Sites"),
   },
   {
@@ -146,10 +149,10 @@ export const consoleRoutes: ConsoleRoute[] = [
   },
   {
     path: "/team",
-    scope: "platform",
     label: "Team",
     icon: Users,
-    element: () => import("@/pages/platform/Team"),
+    permission: "membership.read",
+    element: () => import("@/pages/Team"),
   },
   {
     path: "/bulk-messaging",
@@ -176,5 +179,10 @@ export const consoleRoutes: ConsoleRoute[] = [
 ];
 
 /** Sidebar entries this session may see. */
-export const navFor = (scopes: Scope[]) =>
-  consoleRoutes.filter((r) => r.label && (!r.scope || scopes.includes(r.scope)));
+export const navFor = (scopes: Scope[], permissions: string[] = []) =>
+  consoleRoutes.filter(
+    (r) =>
+      r.label &&
+      (!r.scope || scopes.includes(r.scope)) &&
+      (!r.permission || permissions.includes(r.permission)),
+  );
