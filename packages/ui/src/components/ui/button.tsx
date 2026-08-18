@@ -40,6 +40,9 @@ const buttonVariants = cva(
         // stacked form reads as one column of equal-weight controls.
         xl: "h-[3.25rem] rounded-md px-8 text-sm",
         icon: "h-9 w-9",
+        // Registry components (combobox, input-group) assume these two.
+        "icon-sm": "h-8 w-8",
+        "icon-xs": "h-6 w-6 rounded-sm",
       },
     },
     defaultVariants: {

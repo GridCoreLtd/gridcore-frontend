@@ -1,7 +1,14 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
-import Combobox from "@gridcore/ui/components/Combobox";
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@gridcore/ui/components/ui/combobox";
 
 import { listMerchantDirectory } from "../api";
 
@@ -11,9 +18,10 @@ export interface MerchantChoice {
 }
 
 /**
- * The merchant picker: `@gridcore/ui`'s Combobox over the server's lightweight
- * directory — id and name only, searched and paged on the backend, so it holds
- * up however many merchants exist. This wrapper owns only the data.
+ * The merchant picker: shadcn's Combobox (Base UI) over the server's
+ * lightweight directory — id and name only, searched and paged on the backend,
+ * so it holds up however many merchants exist. `filter` is identity because
+ * the server already filtered.
  */
 export default function MerchantCombobox({
   value,
@@ -40,26 +48,43 @@ export default function MerchantCombobox({
     enabled: open,
   });
 
-  const items =
-    query.data?.pages.flatMap((page) =>
-      page.data.map((m) => ({ value: m.id, label: m.name })),
-    ) ?? [];
+  const merchants = query.data?.pages.flatMap((page) => page.data) ?? [];
 
   return (
     <Combobox
-      items={items}
-      value={value ? { value: value.id, label: value.name } : null}
-      onChange={(item) => onChange(item ? { id: item.value, name: item.label } : null)}
-      search={search}
-      onSearchChange={setSearch}
+      items={merchants}
+      value={value}
+      onValueChange={(next: MerchantChoice | null) => onChange(next)}
       open={open}
       onOpenChange={setOpen}
-      hasMore={query.hasNextPage ?? false}
-      onLoadMore={() => void query.fetchNextPage()}
-      loading={query.isFetching}
-      placeholder="Choose a merchant…"
-      searchPlaceholder="Search merchants…"
-      emptyText="No merchant matches."
-    />
+      inputValue={search}
+      onInputValueChange={setSearch}
+      itemToStringLabel={(merchant: MerchantChoice) => merchant.name}
+      itemToStringValue={(merchant: MerchantChoice) => merchant.id}
+      filter={null}
+    >
+      <ComboboxInput placeholder="Choose a merchant…" showClear />
+      <ComboboxContent>
+        <ComboboxEmpty>
+          {query.isFetching ? "Searching…" : "No merchant matches."}
+        </ComboboxEmpty>
+        <ComboboxList>
+          {(merchant: MerchantChoice) => (
+            <ComboboxItem key={merchant.id} value={merchant}>
+              {merchant.name}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+        {query.hasNextPage ? (
+          <button
+            type="button"
+            onClick={() => void query.fetchNextPage()}
+            className="w-full px-2 py-1.5 text-center text-sm text-muted-foreground hover:text-foreground"
+          >
+            {query.isFetchingNextPage ? "Loading…" : "Load more"}
+          </button>
+        ) : null}
+      </ComboboxContent>
+    </Combobox>
   );
 }
