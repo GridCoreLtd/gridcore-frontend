@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Search, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { DataTable } from "@gridcore/ui/components/data-table";
@@ -16,6 +16,7 @@ import {
   type CustomerListItem,
   customerName,
   isOffline,
+  NewCustomerSheet,
   type CustomerStatus,
 } from "@/features/customers";
 import { initials } from "@/utils/formatters";
@@ -34,6 +35,7 @@ export default function Customers() {
   const { scopes } = useScopes();
   const isPlatform = scopes.includes("platform");
 
+  const [adding, setAdding] = useState(false);
   const [input, setInput] = useState("");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<CustomerStatus | "">("");
@@ -140,11 +142,20 @@ export default function Customers() {
 
   return (
     <section className="flex flex-col gap-5">
-      <p className="-mt-4 text-sm text-muted-foreground">
-        {isPlatform
-          ? "Every customer on the platform, across every merchant."
-          : "The people who buy from you."}
-      </p>
+      <div className="-mt-4 flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          {isPlatform
+            ? "Every customer on the platform, across every merchant."
+            : "The people who buy from you."}
+        </p>
+        {/* The server refuses without customer.write; a platform session must
+            have adopted a merchant, which is also the server's answer. */}
+        <Button size="sm" onClick={() => setAdding(true)}>
+          <Plus className="size-4" />
+          Add customer
+        </Button>
+      </div>
+      <NewCustomerSheet open={adding} onOpenChange={setAdding} />
 
       <DataTable
         columns={columns}

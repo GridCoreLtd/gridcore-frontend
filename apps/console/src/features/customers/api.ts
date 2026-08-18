@@ -23,3 +23,16 @@ export const listCustomers = async (params: {
       },
     })
   ).data;
+
+/**
+ * One create, two shapes (D-064): contact details make a person and the
+ * ordinary customer; a display name alone records an offline one. The server
+ * refuses both-at-once and a contact that already belongs to someone.
+ */
+export const createCustomer = async (body: {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  email?: string;
+  displayName?: string;
+}) => (await axiosInstance.post<{ id: string }>("/v1/customers", body)).data;
