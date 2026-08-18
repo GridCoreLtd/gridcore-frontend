@@ -37,6 +37,7 @@ interface NewCustomerFields {
   displayName: string;
   meter: {
     meterNumber: string;
+    address: string;
     commodity: string;
     comms: string;
     tariffIndex: string;
@@ -105,6 +106,7 @@ export default function NewCustomerSheet({
       if (withMeter) {
         body.meter = {
           meterNumber: fields.meter.meterNumber,
+          address: fields.meter.address || undefined,
           commodity: fields.meter.commodity,
           comms: fields.meter.comms,
           tariffIndex: Number(fields.meter.tariffIndex),
@@ -245,6 +247,12 @@ export default function NewCustomerSheet({
                 label="Meter number"
                 error={errors.meter?.meterNumber?.message}
                 {...register("meter.meterNumber", { required: "As printed on the meter" })}
+              />
+              <Field
+                label="Meter address (optional)"
+                placeholder="Where the meter is installed"
+                error={errors.meter?.address?.message}
+                {...register("meter.address")}
               />
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">

@@ -38,6 +38,7 @@ export const createCustomer = async (body: {
   displayName?: string;
   meter?: {
     meterNumber: string;
+    address?: string;
     commodity: string;
     comms: string;
     tariffIndex: number;
