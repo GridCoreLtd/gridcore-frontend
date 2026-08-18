@@ -44,9 +44,12 @@ function Shell({
 }
 
 const control =
-  "w-full rounded-lg border bg-background px-3.5 py-2.5 text-sm text-primary " +
+  "w-full rounded-lg border bg-background px-3.5 text-sm text-primary " +
   "placeholder:text-primary/40 outline-none transition " +
   "focus:border-primary focus:ring-2 focus:ring-primary/20";
+
+// The house field height — matches Button size=xl, single-line controls only.
+const fieldHeight = "h-[3.25rem]";
 
 const edge = (error?: string) =>
   error ? "border-destructive" : "border-input hover:border-primary/40";
@@ -70,7 +73,7 @@ export const TextField = forwardRef<
         id={fieldId}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${fieldId}-error` : undefined}
-        className={`${control} ${edge(error)}`}
+        className={`${control} ${fieldHeight} ${edge(error)}`}
       />
     </Shell>
   );
@@ -95,7 +98,7 @@ export const TextArea = forwardRef<
         id={fieldId}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${fieldId}-error` : undefined}
-        className={`${control} resize-y ${edge(error)}`}
+        className={`${control} py-2.5 resize-y ${edge(error)}`}
       />
     </Shell>
   );
@@ -120,7 +123,7 @@ export const SelectField = forwardRef<
         id={fieldId}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${fieldId}-error` : undefined}
-        className={`${control} appearance-none ${edge(error)}`}
+        className={`${control} ${fieldHeight} appearance-none ${edge(error)}`}
       >
         {children}
       </select>
