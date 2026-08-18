@@ -34,7 +34,7 @@ const RadioGroupItem = React.forwardRef<
       {...props}
     >
       <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-        <Circle className="h-3.5 w-3.5 fill-primary" />
+        <Circle className="h-3.5 w-3.5 fill-secondary stroke-secondary" />
       </RadioGroupPrimitive.Indicator>
     </RadioGroupPrimitive.Item>
   )
@@ -59,7 +59,7 @@ const RadioGroupCard = React.forwardRef<
       className={cn(
         "cursor-pointer rounded-md text-left text-sm font-semibold focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         "ring-1 ring-inset ring-border bg-background hover:bg-muted",
-        "data-[state=checked]:bg-primary/10 data-[state=checked]:ring-2 data-[state=checked]:ring-primary data-[state=checked]:ring-offset-2 data-[state=checked]:hover:bg-primary/20",
+        "data-[state=checked]:bg-secondary/15 data-[state=checked]:ring-2 data-[state=checked]:ring-secondary data-[state=checked]:ring-offset-2 data-[state=checked]:hover:bg-secondary/25",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}

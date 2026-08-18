@@ -1,3 +1,4 @@
+export { default as ClaimForm } from "./components/ClaimForm";
 export { default as LoginForm } from "./components/LoginForm";
 export { default as MfaForm } from "./components/MfaForm";
 export { default as SetPasswordForm } from "./components/SetPasswordForm";

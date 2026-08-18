@@ -1,6 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { applyFieldErrors, parseApiError, toastMessage } from "@gridcore/api-client";
@@ -25,7 +24,7 @@ import {
 } from "@gridcore/ui/components/ui/sheet";
 
 import { useScopes } from "@/auth/useScopes";
-import { listMerchants } from "@/entities/merchant";
+import { MerchantCombobox, type MerchantChoice } from "@/entities/merchant";
 
 import { createCustomer } from "../api";
 
@@ -63,22 +62,8 @@ export default function NewCustomerSheet({
   const { isPlatform } = useScopes();
   const [offline, setOffline] = useState(false);
   const [withMeter, setWithMeter] = useState(false);
-  const [merchant, setMerchant] = useState<{ id: string; name: string } | null>(null);
-  const [merchantSearch, setMerchantSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [merchant, setMerchant] = useState<MerchantChoice | null>(null);
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(merchantSearch), 300);
-    return () => clearTimeout(timer);
-  }, [merchantSearch]);
-
-  // Platform only: pick the target merchant by name.
-  const merchants = useQuery({
-    queryKey: ["merchants", { search: debouncedSearch, forPicker: true }],
-    queryFn: () => listMerchants({ search: debouncedSearch, pageSize: 8 }),
-    enabled: isPlatform && open && merchant === null,
-  });
 
   const {
     register,
@@ -101,7 +86,6 @@ export default function NewCustomerSheet({
       setOffline(false);
       setWithMeter(false);
       setMerchant(null);
-      setMerchantSearch("");
     }
     onOpenChange(next);
   };
@@ -182,43 +166,10 @@ export default function NewCustomerSheet({
           {isPlatform ? (
             <div className="flex flex-col gap-2">
               <Label>Merchant</Label>
-              {merchant ? (
-                <div className="flex items-center justify-between rounded-md border bg-primary/5 px-3 py-2 text-sm">
-                  <span className="font-medium">{merchant.name}</span>
-                  <button
-                    type="button"
-                    aria-label="Change merchant"
-                    onClick={() => setMerchant(null)}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="size-4" />
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <Field
-                    label="Search merchants"
-                    value={merchantSearch}
-                    error={errors.root?.serverError?.type === "merchant_required" ? "Name the merchant" : undefined}
-                    onChange={(event) => setMerchantSearch(event.target.value)}
-                  />
-                  <div className="flex flex-col overflow-hidden rounded-md border">
-                    {(merchants.data?.data ?? []).map((m) => (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onClick={() => setMerchant({ id: m.id, name: m.name })}
-                        className="px-3 py-2 text-left text-sm hover:bg-primary/5"
-                      >
-                        {m.name}
-                      </button>
-                    ))}
-                    {merchants.isFetching && (
-                      <p className="px-3 py-2 text-sm text-muted-foreground">Searching…</p>
-                    )}
-                  </div>
-                </>
-              )}
+              <MerchantCombobox value={merchant} onChange={setMerchant} />
+              {errors.root?.serverError?.type === "merchant_required" ? (
+                <p className="text-sm text-destructive">Name the merchant</p>
+              ) : null}
             </div>
           ) : null}
 

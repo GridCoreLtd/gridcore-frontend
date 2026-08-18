@@ -25,3 +25,24 @@ export const listMerchants = async (params: {
       },
     })
   ).data;
+
+export interface MerchantDirectoryPage {
+  data: { id: string; name: string }[];
+  cursor: { next?: string; hasMore: boolean };
+}
+
+/** The picker's feed: id and name only, cursor-paginated server-side. */
+export const listMerchantDirectory = async (params: {
+  search?: string;
+  after?: string;
+  pageSize?: number;
+}) =>
+  (
+    await axiosInstance.get<MerchantDirectoryPage>("/v1/merchants/directory", {
+      params: {
+        search: params.search || undefined,
+        after: params.after || undefined,
+        pageSize: params.pageSize,
+      },
+    })
+  ).data;

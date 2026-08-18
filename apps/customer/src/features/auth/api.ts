@@ -40,3 +40,12 @@ export const setPassword = async (body: {
 }) => {
   await axiosInstance.post("/v1/auth/password", body);
 };
+
+/**
+ * Turns the welcome SMS's one-time link into a first password (blueprint 44).
+ * Public — the token is the whole authorisation, spent only when the password
+ * itself passes, so a rejected one leaves the link usable.
+ */
+export const claimPassword = async (body: { token: string; newPassword: string }) => {
+  await axiosInstance.post("/v1/auth/password/claim", body);
+};

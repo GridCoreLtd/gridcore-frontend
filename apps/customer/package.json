@@ -60,6 +60,7 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-tsconfig-paths": "catalog:",
-    "@tailwindcss/vite": "catalog:"
+    "@tailwindcss/vite": "catalog:",
+    "@testing-library/user-event": "catalog:"
   }
 }

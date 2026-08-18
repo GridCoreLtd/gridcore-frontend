@@ -22,6 +22,7 @@ export const routes: RouteObject[] = [
     children: [
       { path: "/", lazy: page(() => import("@/pages/Login")) },
       { path: "/mfa", lazy: page(() => import("@/pages/Mfa")) },
+      { path: "/claim", lazy: page(() => import("@/pages/Claim")) },
       {
         element: <RequireSession />,
         children: [
