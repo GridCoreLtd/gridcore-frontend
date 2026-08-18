@@ -18,6 +18,31 @@ export const listMeters = async (params: {
     })
   ).data;
 
+// ---- custody (blueprint 47): the writes are premises', the screen is ours ----
+
+/** Refuses a held meter — reassign is the deliberate act. */
+export const assignMeter = async (meterId: string, customerId: string) =>
+  axiosInstance.post<void>(`/v1/meters/${meterId}/assignment`, { customerId });
+
+/** Closes the open span and opens the new one — history, never overwrite. */
+export const reassignMeter = async (meterId: string, customerId: string) =>
+  axiosInstance.put<void>(`/v1/meters/${meterId}/assignment`, { customerId });
+
+export const unassignMeter = async (meterId: string) =>
+  axiosInstance.delete<void>(`/v1/meters/${meterId}/assignment`);
+
+export interface CustodyEntry {
+  customerId: string;
+  customerName: string;
+  /** Backfilled spans carry the legacy registration date as a stated proxy. */
+  assignedFrom: string;
+  /** Null is the current holder. */
+  assignedUntil?: string | null;
+}
+
+export const listMeterAssignments = async (meterId: string) =>
+  (await axiosInstance.get<{ data: CustodyEntry[] }>(`/v1/meters/${meterId}/assignments`)).data;
+
 // ---- legacy calls below — they 404 until their surfaces port (D-051) ----
 
 export const postMeterPower = async (data: meterPowerArgs) => {

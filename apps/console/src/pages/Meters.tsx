@@ -1,15 +1,30 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, MoreHorizontal, Search } from "lucide-react";
+
+import { parseApiError, toastMessage } from "@gridcore/api-client";
+import { toast } from "sonner";
 
 import { DataTable } from "@gridcore/ui/components/data-table";
 import { Badge } from "@gridcore/ui/components/ui/badge";
 import { Button } from "@gridcore/ui/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@gridcore/ui/components/ui/dropdown-menu";
 import { Input } from "@gridcore/ui/components/ui/input";
 import { useScopes } from "@/auth/useScopes";
-import { listMeters, type MeterListItem } from "@/features/meters";
+import {
+  AssignMeterSheet,
+  CustodyHistorySheet,
+  listMeters,
+  unassignMeter,
+  type MeterListItem,
+} from "@/features/meters";
 import { dateFormatter } from "@/utils/formatters";
 
 const PAGE_SIZE = 25;
@@ -22,6 +37,12 @@ const PAGE_SIZE = 25;
 export default function Meters() {
   const { scopes } = useScopes();
   const isPlatform = scopes.includes("platform");
+  const queryClient = useQueryClient();
+
+  // The custody drawers (blueprint 47): assigning targets a row, so the row
+  // rides the state.
+  const [assigning, setAssigning] = useState<MeterListItem | null>(null);
+  const [history, setHistory] = useState<MeterListItem | null>(null);
 
   const [input, setInput] = useState("");
   const [search, setSearch] = useState("");
@@ -41,6 +62,13 @@ export default function Meters() {
     queryKey: ["meters", { search, after }],
     queryFn: () => listMeters({ search, after, pageSize: PAGE_SIZE }),
     keepPreviousData: true,
+  });
+
+  const unassign = useMutation({
+    mutationFn: (meter: MeterListItem) => unassignMeter(meter.id),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["meters"] }),
+    // Nothing attaches to a field on a row action; the refusal toasts.
+    onError: (err) => toast.error(toastMessage(parseApiError(err))),
   });
 
   const columns = useMemo<ColumnDef<MeterListItem>[]>(() => {
@@ -99,6 +127,40 @@ export default function Meters() {
           </span>
         ),
       },
+      {
+        id: "actions",
+        cell: ({ row }) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon-sm" aria-label="Meter actions">
+                <MoreHorizontal className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {row.original.customerName ? (
+                <>
+                  <DropdownMenuItem onSelect={() => setAssigning(row.original)}>
+                    Reassign
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-destructive focus:text-destructive"
+                    onSelect={() => unassign.mutate(row.original)}
+                  >
+                    Unassign
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <DropdownMenuItem onSelect={() => setAssigning(row.original)}>
+                  Assign
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem onSelect={() => setHistory(row.original)}>
+                View history
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      },
     ];
     if (isPlatform) {
       base.splice(2, 0, {
@@ -108,7 +170,7 @@ export default function Meters() {
       });
     }
     return base;
-  }, [isPlatform]);
+  }, [isPlatform, unassign]);
 
   const page = stack.length + 1;
   const rows = query.data?.data ?? [];
@@ -120,6 +182,23 @@ export default function Meters() {
           ? "Every meter on the platform, across every merchant."
           : "Your fleet."}
       </p>
+      <AssignMeterSheet
+        meterId={assigning?.id ?? ""}
+        meterNumber={assigning?.meterNumber ?? ""}
+        currentHolder={assigning?.customerName ?? null}
+        open={assigning !== null}
+        onOpenChange={(next) => {
+          if (!next) setAssigning(null);
+        }}
+      />
+      <CustodyHistorySheet
+        meterId={history?.id ?? ""}
+        meterNumber={history?.meterNumber ?? ""}
+        open={history !== null}
+        onOpenChange={(next) => {
+          if (!next) setHistory(null);
+        }}
+      />
 
       <DataTable
         columns={columns}
