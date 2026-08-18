@@ -1,16 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Button } from "@gridcore/ui/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@gridcore/ui/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@gridcore/ui/components/ui/popover";
+import Combobox from "@gridcore/ui/components/Combobox";
 
 import { listMerchantDirectory } from "../api";
 
@@ -20,9 +11,9 @@ export interface MerchantChoice {
 }
 
 /**
- * The merchant picker: a combobox over the server's lightweight directory —
- * id and name only, searched and paged on the backend, so it holds up however
- * many merchants exist. The Command filters nothing itself.
+ * The merchant picker: `@gridcore/ui`'s Combobox over the server's lightweight
+ * directory — id and name only, searched and paged on the backend, so it holds
+ * up however many merchants exist. This wrapper owns only the data.
  */
 export default function MerchantCombobox({
   value,
@@ -49,64 +40,26 @@ export default function MerchantCombobox({
     enabled: open,
   });
 
-  const merchants = query.data?.pages.flatMap((page) => page.data) ?? [];
+  const items =
+    query.data?.pages.flatMap((page) =>
+      page.data.map((m) => ({ value: m.id, label: m.name })),
+    ) ?? [];
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between font-normal"
-        >
-          {value ? value.name : "Choose a merchant…"}
-          <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-        <Command shouldFilter={false}>
-          <CommandInput
-            placeholder="Search merchants…"
-            value={search}
-            onValueChange={setSearch}
-          />
-          <CommandList>
-            <CommandEmpty>
-              {query.isFetching ? "Searching…" : "No merchant matches."}
-            </CommandEmpty>
-            {merchants.map((merchant) => (
-              <CommandItem
-                key={merchant.id}
-                value={merchant.id}
-                onSelect={() => {
-                  onChange(merchant.id === value?.id ? null : merchant);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={
-                    merchant.id === value?.id
-                      ? "size-4 text-secondary-foreground"
-                      : "size-4 opacity-0"
-                  }
-                />
-                {merchant.name}
-              </CommandItem>
-            ))}
-            {query.hasNextPage ? (
-              <CommandItem
-                value="__more"
-                onSelect={() => void query.fetchNextPage()}
-                className="justify-center text-muted-foreground"
-              >
-                {query.isFetchingNextPage ? "Loading…" : "Load more"}
-              </CommandItem>
-            ) : null}
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <Combobox
+      items={items}
+      value={value ? { value: value.id, label: value.name } : null}
+      onChange={(item) => onChange(item ? { id: item.value, name: item.label } : null)}
+      search={search}
+      onSearchChange={setSearch}
+      open={open}
+      onOpenChange={setOpen}
+      hasMore={query.hasNextPage ?? false}
+      onLoadMore={() => void query.fetchNextPage()}
+      loading={query.isFetching}
+      placeholder="Choose a merchant…"
+      searchPlaceholder="Search merchants…"
+      emptyText="No merchant matches."
+    />
   );
 }
