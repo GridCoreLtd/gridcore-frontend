@@ -2,3 +2,4 @@ export { MerchantRecord, MerchantRecordSkeleton } from "./components/MerchantRec
 export { default as NewBank } from "./components/NewBank";
 export { NewMerchantUser } from "./components/NewMerchantUser";
 export * from "./types";
+export * from "./api";

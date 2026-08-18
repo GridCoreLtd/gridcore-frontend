@@ -25,7 +25,7 @@ import {
 } from "@gridcore/ui/components/ui/sheet";
 
 import { useScopes } from "@/auth/useScopes";
-import { listMerchants } from "@/features/merchants/api";
+import { listMerchants } from "@/entities/merchant";
 
 import { createCustomer } from "../api";
 
