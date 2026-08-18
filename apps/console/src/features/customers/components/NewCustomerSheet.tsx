@@ -26,6 +26,7 @@ import {
 
 import { useScopes } from "@/auth/useScopes";
 import { MerchantCombobox, type MerchantChoice } from "@/entities/merchant";
+import { SiteCombobox, type SiteChoice } from "@/entities/site";
 
 import { createCustomer } from "../api";
 
@@ -65,6 +66,7 @@ export default function NewCustomerSheet({
   const [offline, setOffline] = useState(false);
   const [withMeter, setWithMeter] = useState(false);
   const [merchant, setMerchant] = useState<MerchantChoice | null>(null);
+  const [site, setSite] = useState<SiteChoice | null>(null);
   const queryClient = useQueryClient();
 
   const {
@@ -88,6 +90,7 @@ export default function NewCustomerSheet({
       setOffline(false);
       setWithMeter(false);
       setMerchant(null);
+      setSite(null);
     }
     onOpenChange(next);
   };
@@ -103,6 +106,7 @@ export default function NewCustomerSheet({
             email: fields.email,
           };
       if (isPlatform && merchant) body.merchantId = merchant.id;
+      if (site) body.siteId = site.id;
       if (withMeter) {
         body.meter = {
           meterNumber: fields.meter.meterNumber,
@@ -110,9 +114,12 @@ export default function NewCustomerSheet({
           commodity: fields.meter.commodity,
           comms: fields.meter.comms,
           tariffIndex: Number(fields.meter.tariffIndex),
-          // The operator types naira; the API speaks minor units.
-          tariffRateMinor: Math.round(Number(fields.meter.tariffRate) * 100),
         };
+        // The operator types naira; the API speaks minor units. Omitted with
+        // a site, the meter rides the site default (Q3).
+        if (fields.meter.tariffRate) {
+          body.meter.tariffRateMinor = Math.round(Number(fields.meter.tariffRate) * 100);
+        }
       }
       return createCustomer(body);
     },
@@ -136,6 +143,7 @@ export default function NewCustomerSheet({
           "meter.comms",
           "meter.tariffIndex",
           "meter.tariffRateMinor",
+          "siteId",
         ])
       ) {
         setError("root.serverError", {
@@ -174,6 +182,19 @@ export default function NewCustomerSheet({
               ) : null}
             </div>
           ) : null}
+
+          <div className="flex flex-col gap-2">
+            <Label>
+              Site <span className="font-normal text-muted-foreground">(optional)</span>
+            </Label>
+            {/* Platform picks a merchant first; its sites feed the picker. */}
+            <SiteCombobox
+              key={merchant?.id ?? "own"}
+              value={site}
+              onChange={setSite}
+              merchantId={isPlatform ? merchant?.id : undefined}
+            />
+          </div>
 
           <RadioGroup
             value={offline ? "offline" : "person"}
@@ -302,12 +323,15 @@ export default function NewCustomerSheet({
                   {...register("meter.tariffIndex", { required: "1-99" })}
                 />
                 <Field
-                  label="Rate per unit (₦)"
+                  label={site ? "Rate per unit (₦, optional)" : "Rate per unit (₦)"}
                   type="number"
                   step="0.01"
                   min="0.01"
                   error={errors.meter?.tariffRate?.message}
-                  {...register("meter.tariffRate", { required: "The price per unit" })}
+                  {...register("meter.tariffRate", {
+                    validate: (value) =>
+                      Boolean(value) || Boolean(site) || "The price per unit — or pick a site to fall back on",
+                  })}
                 />
               </div>
             </div>

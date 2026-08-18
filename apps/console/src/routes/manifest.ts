@@ -1,6 +1,6 @@
 import type { ComponentType, SVGProps } from "react";
 
-import { Banknote, Calculator, CalendarDays, ChartColumnIncreasing, ChartPie, CircleUser, LayoutGrid, MessagesSquare, Settings, Store, Users, Wallet } from "lucide-react";
+import { Banknote, Calculator, CalendarDays, ChartColumnIncreasing, ChartPie, CircleUser, LayoutGrid, MapPin, MessagesSquare, Settings, Store, Users, Wallet } from "lucide-react";
 
 import type { Scope } from "@/auth/scopes";
 
@@ -55,6 +55,12 @@ export const consoleRoutes: ConsoleRoute[] = [
     path: "/customers/:id",
     crumb: "Customer",
     element: () => import("@/pages/CustomerDetail"),
+  },
+  {
+    path: "/sites",
+    label: "Sites",
+    icon: MapPin,
+    element: () => import("@/pages/Sites"),
   },
   {
     path: "/meters",

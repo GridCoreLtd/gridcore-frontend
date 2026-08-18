@@ -31,6 +31,7 @@ export const listCustomers = async (params: {
  */
 export const createCustomer = async (body: {
   merchantId?: string;
+  siteId?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
@@ -42,7 +43,8 @@ export const createCustomer = async (body: {
     commodity: string;
     comms: string;
     tariffIndex: number;
-    tariffRateMinor: number;
+    /** Omitted with a siteId: the meter rides the site default (Q3). */
+    tariffRateMinor?: number;
   };
 }) =>
   (await axiosInstance.post<{ id: string; meterId?: string | null }>("/v1/customers", body)).data;
