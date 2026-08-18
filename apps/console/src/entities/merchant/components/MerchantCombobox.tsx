@@ -8,6 +8,7 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  useComboboxAnchor,
 } from "@gridcore/ui/components/ui/combobox";
 
 import { listMerchantDirectory } from "../api";
@@ -33,6 +34,9 @@ export default function MerchantCombobox({
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
+  // Without an explicit anchor the popup positions off the chevron BUTTON
+  // inside the input group — a sliver hugging the field's right edge.
+  const anchor = useComboboxAnchor();
 
   useEffect(() => {
     const timer = setTimeout(() => setDebounced(search), 300);
@@ -63,8 +67,10 @@ export default function MerchantCombobox({
       itemToStringValue={(merchant: MerchantChoice) => merchant.id}
       filter={null}
     >
-      <ComboboxInput placeholder="Choose a merchant…" showClear />
-      <ComboboxContent className="min-w-(--anchor-width)">
+      <div ref={anchor}>
+        <ComboboxInput placeholder="Choose a merchant…" showClear />
+      </div>
+      <ComboboxContent anchor={anchor} className="min-w-(--anchor-width)">
         <ComboboxEmpty>
           {query.isFetching ? "Searching…" : "No merchant matches."}
         </ComboboxEmpty>

@@ -19,6 +19,7 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@gridcore/ui/components/ui/sheet";
@@ -145,11 +146,9 @@ export default function NewCustomerSheet({
 
   return (
     <Sheet open={open} onOpenChange={close}>
-      <SheetContent
-        side="right"
-        className="flex w-full flex-col gap-0 overflow-y-auto p-0 sm:max-w-md"
-      >
-        <SheetHeader className="border-b px-6 py-5">
+      <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
+        {/* The header and footer are pinned; only the fields scroll. */}
+        <SheetHeader className="shrink-0 border-b px-6 py-5 text-left">
           <SheetTitle>New customer</SheetTitle>
           <SheetDescription>
             {offline
@@ -161,8 +160,9 @@ export default function NewCustomerSheet({
         <form
           onSubmit={handleSubmit((fields) => create.mutate(fields))}
           noValidate
-          className="flex flex-1 flex-col gap-4 px-6 py-5"
+          className="flex min-h-0 flex-1 flex-col"
         >
+          <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-5">
           {isPlatform ? (
             <div className="flex flex-col gap-2">
               <Label>Merchant</Label>
@@ -305,14 +305,16 @@ export default function NewCustomerSheet({
             </div>
           ) : null}
 
-          <div className="mt-auto flex justify-end gap-3 pt-4">
+          </div>
+
+          <SheetFooter className="shrink-0 flex-row justify-end gap-3 border-t px-6 py-4">
             <Button type="button" variant="ghost" onClick={() => close(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={create.isPending}>
               {create.isPending ? "Adding…" : "Add customer"}
             </Button>
-          </div>
+          </SheetFooter>
         </form>
       </SheetContent>
     </Sheet>
