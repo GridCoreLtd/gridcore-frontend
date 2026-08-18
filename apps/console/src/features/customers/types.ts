@@ -3,15 +3,30 @@ export type CustomerStatus = "ACTIVE" | "BANNED";
 
 export interface CustomerListItem {
   id: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
+  /** Absent for an offline customer (D-064) — no person exists. */
+  firstName?: string | null;
+  lastName?: string | null;
+  /** Absent for an offline customer — the merchant reaches them off-platform. */
+  phone?: string | null;
   email?: string | null;
+  /** The merchant's own label for an offline customer. */
+  displayName?: string | null;
   /** Conduct, not tenure — a closed edge is not in the list at all. */
   status: CustomerStatus;
   merchantName: string;
   siteName?: string | null;
   meterCount: number;
+}
+
+/** The one place the name rule lives: a person's name, else the merchant's label. */
+export function customerName(c: CustomerListItem): string {
+  if (c.firstName || c.lastName) return [c.firstName, c.lastName].filter(Boolean).join(" ");
+  return c.displayName ?? "";
+}
+
+/** No person means vended for by hand and reached outside the platform. */
+export function isOffline(c: CustomerListItem): boolean {
+  return !c.firstName && !c.lastName && Boolean(c.displayName);
 }
 
 export interface CustomerListPage {

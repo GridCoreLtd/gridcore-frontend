@@ -14,6 +14,8 @@ import { useScopes } from "@/auth/useScopes";
 import {
   listCustomers,
   type CustomerListItem,
+  customerName,
+  isOffline,
   type CustomerStatus,
 } from "@/features/customers";
 import { initials } from "@/utils/formatters";
@@ -64,15 +66,20 @@ export default function Customers() {
               aria-hidden
               className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/5 text-xs font-semibold text-primary"
             >
-              {initials(`${row.original.firstName} ${row.original.lastName}`)}
+              {initials(customerName(row.original))}
             </span>
             <div className="min-w-0">
               <p className="truncate font-medium text-foreground">
-                {row.original.firstName} {row.original.lastName}
+                {customerName(row.original)}
               </p>
-              <p className="truncate font-mono text-xs text-muted-foreground">
-                {row.original.phone}
-              </p>
+              {isOffline(row.original) ? (
+                // Vended for by hand; the merchant reaches them off-platform (D-064).
+                <p className="truncate text-xs text-muted-foreground">Offline — no contact details</p>
+              ) : (
+                <p className="truncate font-mono text-xs text-muted-foreground">
+                  {row.original.phone}
+                </p>
+              )}
             </div>
           </div>
         ),
