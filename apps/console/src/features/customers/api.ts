@@ -1,6 +1,6 @@
 import axiosInstance from "@/utils/axios-instance";
 
-import type { CustomerListPage, CustomerStatus } from "./types";
+import type { CustomerDetail, CustomerListPage, CustomerStatus } from "./types";
 
 /**
  * The v2 customers list — cursor-paginated, scope-dispatched on the server.
@@ -46,3 +46,17 @@ export const createCustomer = async (body: {
   };
 }) =>
   (await axiosInstance.post<{ id: string; meterId?: string | null }>("/v1/customers", body)).data;
+
+/** Absent, closed and another merchant's answer one 404. */
+export const getCustomer = async (id: string) =>
+  (await axiosInstance.get<CustomerDetail>(`/v1/customers/${id}`)).data;
+
+/**
+ * The upgrade path (D-064): the offline customer finally has a reachable
+ * phone. The edge keeps its id, meters and history, and the claim link goes
+ * out by SMS — the same promise create makes, made later.
+ */
+export const attachPerson = async (
+  customerId: string,
+  body: { firstName: string; lastName: string; phone: string; email: string },
+) => axiosInstance.post<void>(`/v1/customers/${customerId}/person`, body);
