@@ -1,10 +1,21 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { applyFieldErrors, parseApiError, toastMessage } from "@gridcore/api-client";
-import { Button } from "@gridcore/ui/components/ui/button";
 import Field from "@gridcore/ui/components/Field";
+import { Button } from "@gridcore/ui/components/ui/button";
+import { Checkbox } from "@gridcore/ui/components/ui/checkbox";
+import { Label } from "@gridcore/ui/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@gridcore/ui/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@gridcore/ui/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -12,8 +23,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@gridcore/ui/components/ui/sheet";
-import { Label } from "@gridcore/ui/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@gridcore/ui/components/ui/radio-group";
+
+import { useScopes } from "@/auth/useScopes";
+import { listMerchants } from "@/features/merchants/api";
 
 import { createCustomer } from "../api";
 
@@ -23,16 +35,23 @@ interface NewCustomerFields {
   phone: string;
   email: string;
   displayName: string;
+  meter: {
+    meterNumber: string;
+    commodity: string;
+    comms: string;
+    tariffIndex: string;
+    tariffRate: string; // naira; converted to minor units on submit
+  };
 }
 
+const COMMODITIES = ["ELECTRICITY", "WATER", "GAS", "TIME"] as const;
+const COMMS = ["GSM", "LORA", "CALIN", "NONE"] as const;
+
 /**
- * One form, one path (D-064): the person/offline split is a field variation,
- * not two flows, so there is one drawer and the toggle swaps its fields.
- * "Offline" means the merchant vends for them by hand and reaches them outside
- * the platform — no person, no login, just their name.
- *
- * A drawer rather than a modal: the form grows (site filing, more fields will
- * come) and a drawer scrolls naturally where a modal starts clipping.
+ * One form, one path (D-064 + blueprint 44): the person/offline split is a
+ * field variation, the meter is an optional section of the SAME submit, and
+ * everything lands in one transaction server-side. A platform session names
+ * the merchant; a merchant's own is implied.
  */
 export default function NewCustomerSheet({
   open,
@@ -41,39 +60,78 @@ export default function NewCustomerSheet({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { isPlatform } = useScopes();
   const [offline, setOffline] = useState(false);
+  const [withMeter, setWithMeter] = useState(false);
+  const [merchant, setMerchant] = useState<{ id: string; name: string } | null>(null);
+  const [merchantSearch, setMerchantSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(merchantSearch), 300);
+    return () => clearTimeout(timer);
+  }, [merchantSearch]);
+
+  // Platform only: pick the target merchant by name.
+  const merchants = useQuery({
+    queryKey: ["merchants", { search: debouncedSearch, forPicker: true }],
+    queryFn: () => listMerchants({ search: debouncedSearch, pageSize: 8 }),
+    enabled: isPlatform && open && merchant === null,
+  });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setError,
+    setValue,
     reset,
-  } = useForm<NewCustomerFields>({ mode: "onSubmit" });
+    watch,
+  } = useForm<NewCustomerFields>({
+    mode: "onSubmit",
+    defaultValues: {
+      meter: { commodity: "ELECTRICITY", comms: "GSM", tariffIndex: "3" },
+    } as Partial<NewCustomerFields>,
+  });
 
   const close = (next: boolean) => {
     if (!next) {
       reset();
       setOffline(false);
+      setWithMeter(false);
+      setMerchant(null);
+      setMerchantSearch("");
     }
     onOpenChange(next);
   };
 
   const create = useMutation({
-    mutationFn: (fields: NewCustomerFields) =>
-      createCustomer(
-        offline
-          ? { displayName: fields.displayName }
-          : {
-              firstName: fields.firstName,
-              lastName: fields.lastName,
-              phone: fields.phone,
-              email: fields.email,
-            },
-      ),
+    mutationFn: (fields: NewCustomerFields) => {
+      const body: Parameters<typeof createCustomer>[0] = offline
+        ? { displayName: fields.displayName }
+        : {
+            firstName: fields.firstName,
+            lastName: fields.lastName,
+            phone: fields.phone,
+            email: fields.email,
+          };
+      if (isPlatform && merchant) body.merchantId = merchant.id;
+      if (withMeter) {
+        body.meter = {
+          meterNumber: fields.meter.meterNumber,
+          commodity: fields.meter.commodity,
+          comms: fields.meter.comms,
+          tariffIndex: Number(fields.meter.tariffIndex),
+          // The operator types naira; the API speaks minor units.
+          tariffRateMinor: Math.round(Number(fields.meter.tariffRate) * 100),
+        };
+      }
+      return createCustomer(body);
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["customers"] });
+      void queryClient.invalidateQueries({ queryKey: ["meters"] });
       close(false);
     },
     onError(err) {
@@ -85,6 +143,12 @@ export default function NewCustomerSheet({
           "phone",
           "email",
           "displayName",
+          "merchantId",
+          "meter.meterNumber",
+          "meter.commodity",
+          "meter.comms",
+          "meter.tariffIndex",
+          "meter.tariffRateMinor",
         ])
       ) {
         setError("root.serverError", {
@@ -97,13 +161,16 @@ export default function NewCustomerSheet({
 
   return (
     <Sheet open={open} onOpenChange={close}>
-      <SheetContent side="right" className="flex w-full flex-col gap-0 overflow-y-auto p-0 sm:max-w-md">
+      <SheetContent
+        side="right"
+        className="flex w-full flex-col gap-0 overflow-y-auto p-0 sm:max-w-md"
+      >
         <SheetHeader className="border-b px-6 py-5">
           <SheetTitle>New customer</SheetTitle>
           <SheetDescription>
             {offline
               ? "Someone you vend for by hand and reach outside the platform. They cannot sign in — you are their record."
-              : "Their phone becomes how they sign in to your portal."}
+              : "Their phone becomes how they sign in — they get a one-time link to set their password."}
           </SheetDescription>
         </SheetHeader>
 
@@ -112,6 +179,49 @@ export default function NewCustomerSheet({
           noValidate
           className="flex flex-1 flex-col gap-4 px-6 py-5"
         >
+          {isPlatform ? (
+            <div className="flex flex-col gap-2">
+              <Label>Merchant</Label>
+              {merchant ? (
+                <div className="flex items-center justify-between rounded-md border bg-primary/5 px-3 py-2 text-sm">
+                  <span className="font-medium">{merchant.name}</span>
+                  <button
+                    type="button"
+                    aria-label="Change merchant"
+                    onClick={() => setMerchant(null)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Field
+                    label="Search merchants"
+                    value={merchantSearch}
+                    error={errors.root?.serverError?.type === "merchant_required" ? "Name the merchant" : undefined}
+                    onChange={(event) => setMerchantSearch(event.target.value)}
+                  />
+                  <div className="flex flex-col overflow-hidden rounded-md border">
+                    {(merchants.data?.data ?? []).map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setMerchant({ id: m.id, name: m.name })}
+                        className="px-3 py-2 text-left text-sm hover:bg-primary/5"
+                      >
+                        {m.name}
+                      </button>
+                    ))}
+                    {merchants.isFetching && (
+                      <p className="px-3 py-2 text-sm text-muted-foreground">Searching…</p>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          ) : null}
+
           <RadioGroup
             value={offline ? "offline" : "person"}
             onValueChange={(value) => setOffline(value === "offline")}
@@ -168,6 +278,81 @@ export default function NewCustomerSheet({
               />
             </>
           )}
+
+          <div className="flex items-center gap-2 pt-2">
+            <Checkbox
+              id="new-customer-meter"
+              checked={withMeter}
+              onCheckedChange={(checked) => setWithMeter(checked === true)}
+            />
+            <Label htmlFor="new-customer-meter">Register their meter now</Label>
+          </div>
+
+          {withMeter ? (
+            <div className="flex flex-col gap-4 rounded-md border bg-primary/[0.03] p-4">
+              <Field
+                label="Meter number"
+                error={errors.meter?.meterNumber?.message}
+                {...register("meter.meterNumber", { required: "As printed on the meter" })}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <Label>Commodity</Label>
+                  <Select
+                    value={watch("meter.commodity")}
+                    onValueChange={(value) => setValue("meter.commodity", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COMMODITIES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c.charAt(0) + c.slice(1).toLowerCase()}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label>Comms</Label>
+                  <Select
+                    value={watch("meter.comms")}
+                    onValueChange={(value) => setValue("meter.comms", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COMMS.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field
+                  label="Tariff index"
+                  type="number"
+                  min={1}
+                  max={99}
+                  error={errors.meter?.tariffIndex?.message}
+                  {...register("meter.tariffIndex", { required: "1-99" })}
+                />
+                <Field
+                  label="Rate per unit (₦)"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  error={errors.meter?.tariffRate?.message}
+                  {...register("meter.tariffRate", { required: "The price per unit" })}
+                />
+              </div>
+            </div>
+          ) : null}
 
           <div className="mt-auto flex justify-end gap-3 pt-4">
             <Button type="button" variant="ghost" onClick={() => close(false)}>

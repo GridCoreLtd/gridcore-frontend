@@ -30,9 +30,18 @@ export const listCustomers = async (params: {
  * refuses both-at-once and a contact that already belongs to someone.
  */
 export const createCustomer = async (body: {
+  merchantId?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
   email?: string;
   displayName?: string;
-}) => (await axiosInstance.post<{ id: string }>("/v1/customers", body)).data;
+  meter?: {
+    meterNumber: string;
+    commodity: string;
+    comms: string;
+    tariffIndex: number;
+    tariffRateMinor: number;
+  };
+}) =>
+  (await axiosInstance.post<{ id: string; meterId?: string | null }>("/v1/customers", body)).data;
