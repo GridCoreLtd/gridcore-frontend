@@ -35,8 +35,11 @@ export default function MerchantCombobox({
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
   // Without an explicit anchor the popup positions off the chevron BUTTON
-  // inside the input group — a sliver hugging the field's right edge.
+  // inside the input group — a sliver hugging the field's right edge. The same
+  // div is the PORTAL container: inside the Sheet's subtree, so the modal's
+  // scroll lock and focus trap leave the popup alone.
   const anchor = useComboboxAnchor();
+  const [container, setContainer] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebounced(search), 300);
@@ -67,10 +70,15 @@ export default function MerchantCombobox({
       itemToStringValue={(merchant: MerchantChoice) => merchant.id}
       filter={null}
     >
-      <div ref={anchor}>
+      <div
+        ref={(node) => {
+          anchor.current = node;
+          setContainer(node);
+        }}
+      >
         <ComboboxInput placeholder="Choose a merchant…" showClear />
       </div>
-      <ComboboxContent anchor={anchor} className="min-w-(--anchor-width)">
+      <ComboboxContent anchor={anchor} container={container} className="min-w-(--anchor-width)">
         <ComboboxEmpty>
           {query.isFetching ? "Searching…" : "No merchant matches."}
         </ComboboxEmpty>
@@ -85,7 +93,7 @@ export default function MerchantCombobox({
           <button
             type="button"
             onClick={() => void query.fetchNextPage()}
-            className="w-full px-2 py-1.5 text-center text-sm text-muted-foreground hover:text-foreground"
+            className="w-full px-2 py-1.5 text-center text-sm text-neutral-500 hover:text-neutral-900"
           >
             {query.isFetchingNextPage ? "Loading…" : "Load more"}
           </button>
