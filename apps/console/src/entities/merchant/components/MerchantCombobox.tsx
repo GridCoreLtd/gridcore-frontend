@@ -64,7 +64,7 @@ export default function MerchantCombobox({
       filter={null}
     >
       <ComboboxInput placeholder="Choose a merchant…" showClear />
-      <ComboboxContent>
+      <ComboboxContent className="min-w-(--anchor-width)">
         <ComboboxEmpty>
           {query.isFetching ? "Searching…" : "No merchant matches."}
         </ComboboxEmpty>

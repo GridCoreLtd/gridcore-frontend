@@ -34,22 +34,22 @@ const Field = React.forwardRef<HTMLInputElement, FieldProps>(
             {label}
           </label>
 
+          {/* Base + focus classes mirror ui/input.tsx exactly — the registry
+              Input takes no ref (React 18), so the notch keeps its own element.
+              A change there is a change here. */}
           <input
             ref={ref}
             id={inputId}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? errorId : undefined}
             className={cn(
-              "block w-full rounded-md border bg-transparent px-3.5 py-3.5",
-              "text-base leading-6 md:text-sm",
-              "border-input placeholder:text-xs placeholder:text-muted-foreground/70",
-              "hover:border-muted-foreground/40",
-              // One pixel of border becomes two of brand navy, so focus reads as
-              // a state rather than as an edge.
-              "focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none",
-              "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground",
-              error && "border-destructive focus:border-destructive focus:ring-destructive",
-              endSlot && "pr-11",
+              "h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none md:text-sm dark:bg-input/30",
+              "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+              "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
+              "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+              // The house's own: quieter placeholders under a notched label.
+              "placeholder:text-xs placeholder:text-muted-foreground/70",
+              endSlot && "pr-10",
               className
             )}
             {...rest}
