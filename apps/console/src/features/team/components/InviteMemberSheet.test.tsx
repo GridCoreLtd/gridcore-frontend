@@ -81,7 +81,6 @@ describe("InviteMemberSheet", () => {
 
     await waitFor(() => expect(sent).toHaveLength(1));
     expect(sent[0]).toEqual({
-      merchantId: undefined,
       firstName: "Bisi",
       lastName: "Adebayo",
       phone: "+2348077000001",

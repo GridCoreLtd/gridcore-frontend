@@ -16,11 +16,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@gridcore/ui/components/ui/dropdown-menu";
-import { Label } from "@gridcore/ui/components/ui/label";
-
 import { usePermissions } from "@/auth/usePermissions";
 import { useScopes } from "@/auth/useScopes";
-import { MerchantCombobox, type MerchantChoice } from "@/entities/merchant";
 import {
   ChangeRoleSheet,
   InviteMemberSheet,
@@ -31,9 +28,10 @@ import {
 import { dateFormatter, initials } from "@/utils/formatters";
 
 /**
- * The team (blueprint 49): a merchant sees its members; platform sees its
- * operators, or one merchant's team through the picker. The controls hide
- * without membership.grant/revoke — courtesy only, the server enforces.
+ * The team (blueprint 49): each side manages its OWN team — a merchant its
+ * members, platform its operators. Merchant teams are the merchants' business
+ * (ruled 2026-08-18). The controls hide without membership.grant/revoke —
+ * courtesy only, the server enforces.
  */
 export default function Team() {
   const { scopes } = useScopes();
@@ -43,13 +41,8 @@ export default function Team() {
 
   const [inviting, setInviting] = useState(false);
   const [changing, setChanging] = useState<TeamMember | null>(null);
-  const [merchant, setMerchant] = useState<MerchantChoice | null>(null);
-  const merchantId = isPlatform ? merchant?.id : undefined;
 
-  const query = useQuery({
-    queryKey: ["team", { merchantId }],
-    queryFn: () => listTeam({ merchantId }),
-  });
+  const query = useQuery({ queryKey: ["team"], queryFn: listTeam });
 
   const revoke = useMutation({
     mutationFn: (member: TeamMember) => revokeTeamMember(member.membershipId),
@@ -158,9 +151,7 @@ export default function Team() {
       <div className="-mt-4 flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           {isPlatform
-            ? merchant
-              ? `${merchant.name}'s team.`
-              : "Platform operators. Pick a merchant to see their team instead."
+            ? "The operators who run the platform."
             : "The people who operate this account with you."}
         </p>
         {can("membership.grant") ? (
@@ -171,17 +162,9 @@ export default function Team() {
         ) : null}
       </div>
 
-      {isPlatform ? (
-        <div className="flex max-w-sm flex-col gap-2">
-          <Label>Merchant</Label>
-          <MerchantCombobox value={merchant} onChange={setMerchant} />
-        </div>
-      ) : null}
-
-      <InviteMemberSheet merchantId={merchantId} open={inviting} onOpenChange={setInviting} />
+      <InviteMemberSheet open={inviting} onOpenChange={setInviting} />
       <ChangeRoleSheet
         member={changing}
-        merchantId={merchantId}
         open={changing !== null}
         onOpenChange={(next) => {
           if (!next) setChanging(null);

@@ -28,12 +28,10 @@ import { changeTeamMemberRole, listAssignableRoles, type TeamMember } from "../a
  */
 export default function ChangeRoleSheet({
   member,
-  merchantId,
   open,
   onOpenChange,
 }: {
   member: TeamMember | null;
-  merchantId?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -42,8 +40,8 @@ export default function ChangeRoleSheet({
   const [error, setError] = useState<string | null>(null);
 
   const roles = useQuery({
-    queryKey: ["roles", { merchantId }],
-    queryFn: () => listAssignableRoles({ merchantId }),
+    queryKey: ["roles"],
+    queryFn: listAssignableRoles,
     enabled: open,
   });
 

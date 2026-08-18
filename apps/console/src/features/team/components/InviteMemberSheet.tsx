@@ -34,23 +34,21 @@ interface InviteFields {
 /**
  * The invite (blueprint 49): the member gets a one-time set-password link by
  * SMS — never a password. The role picker is fed by the server (D-043: no
- * role name hardcoded client-side). `merchantId` set means a platform session
- * is inviting into that merchant; unset on platform grants a platform role.
+ * role name hardcoded client-side). Each side invites its OWN team — the
+ * session decides which, never the client.
  */
 export default function InviteMemberSheet({
-  merchantId,
   open,
   onOpenChange,
 }: {
-  merchantId?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
   const queryClient = useQueryClient();
 
   const roles = useQuery({
-    queryKey: ["roles", { merchantId }],
-    queryFn: () => listAssignableRoles({ merchantId }),
+    queryKey: ["roles"],
+    queryFn: listAssignableRoles,
     enabled: open,
   });
 
@@ -72,7 +70,6 @@ export default function InviteMemberSheet({
   const invite = useMutation({
     mutationFn: (fields: InviteFields) =>
       inviteTeamMember({
-        merchantId: merchantId || undefined,
         firstName: fields.firstName,
         lastName: fields.lastName,
         phone: fields.phone,
@@ -92,7 +89,6 @@ export default function InviteMemberSheet({
           "phone",
           "email",
           "roleId",
-          "merchantId",
         ])
       ) {
         setError("root.serverError", { type: problem.code, message: toastMessage(problem) });

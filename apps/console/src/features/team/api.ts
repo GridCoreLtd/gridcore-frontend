@@ -21,19 +21,12 @@ export interface AssignableRole {
   displayName: string;
 }
 
-export const listTeam = async (params: { merchantId?: string } = {}) =>
-  (
-    await axiosInstance.get<{ data: TeamMember[] }>("/v1/team", {
-      params: { merchantId: params.merchantId || undefined },
-    })
-  ).data;
+/** Each side sees its OWN team: a merchant its members, platform its operators. */
+export const listTeam = async () =>
+  (await axiosInstance.get<{ data: TeamMember[] }>("/v1/team")).data;
 
-export const listAssignableRoles = async (params: { merchantId?: string } = {}) =>
-  (
-    await axiosInstance.get<{ data: AssignableRole[] }>("/v1/roles", {
-      params: { merchantId: params.merchantId || undefined },
-    })
-  ).data;
+export const listAssignableRoles = async () =>
+  (await axiosInstance.get<{ data: AssignableRole[] }>("/v1/roles")).data;
 
 /**
  * One transaction server-side — person, claimable account, the mandatory SMS
@@ -41,7 +34,6 @@ export const listAssignableRoles = async (params: { merchantId?: string } = {}) 
  * password: legacy's plaintext-password SMS is dead (D-021).
  */
 export const inviteTeamMember = async (body: {
-  merchantId?: string;
   firstName: string;
   lastName: string;
   phone: string;
